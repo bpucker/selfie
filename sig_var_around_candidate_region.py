@@ -1,6 +1,6 @@
 ### Boas Pucker ###
 ### bpucker@cebitec.uni-bielefeld.de ###
-### v0.1 ###
+### v0.2 ###
 
 __usage__ = """
 					python sig_var_around_candidate_region.py
@@ -14,6 +14,7 @@ __usage__ = """
 					--step <STEP_SIZE>
 					--x1 <INTERVALL_STAR_POSITION>
 					--x2 <INTERVALL_END_POSITION>
+					--score <ACTIVATES_P_VALUE_BASED_SCORE>
 					
 					bug reports and feature requests:
 					bpucker@cebitec.uni-bielefeld.de
@@ -22,7 +23,7 @@ __usage__ = """
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-import os, sys
+import os, sys, math
 
 # --- end of imports --- #
 
@@ -30,6 +31,7 @@ def load_var_pos( vcf, seq_of_interest ):
 	"""! @brief load all variants on sequence of interest """
 	
 	var_pos = []
+	adj_p_values = []
 	with open( vcf, "r" ) as f:
 		line = f.readline()
 		while line:
@@ -37,11 +39,15 @@ def load_var_pos( vcf, seq_of_interest ):
 				parts = line.strip().split('\t')
 				if parts[0] == seq_of_interest:
 					var_pos.append( int( parts[1] ) )
+					try:
+						adj_p_values.append( float( parts[7] ) )	#this only works for the sig variant file
+					except:
+						pass
 			line = f.readline()
-	return var_pos
+	return var_pos, adj_p_values
 
 
-def generate_figure( fig_file, general_var_pos, sig_var_pos, seq_of_interest, window, step, xstart, xend ):
+def generate_figure( fig_file, general_var_pos, sig_var_pos, seq_of_interest, window, step, xstart, xend, adj_p_values, score_status ):
 	"""! @brief visualize distribution of all variants and the significant variants """
 	
 	# --- calculation of values --- #
@@ -54,6 +60,7 @@ def generate_figure( fig_file, general_var_pos, sig_var_pos, seq_of_interest, wi
 	y2 = []		#significant variants
 	y3 = []		#ratio
 	x = []
+	y4 = []	#adjusted p-values
 	
 	if xstart:
 		start = 0 + xstart
@@ -62,15 +69,16 @@ def generate_figure( fig_file, general_var_pos, sig_var_pos, seq_of_interest, wi
 		xstart = 0
 	end = start + window
 	while start < max_var_pos:
-		print end
 		general = 0
 		sig = 0
+		p = 0
 		for pos in general_var_pos:
 			if start < pos < end:
 				general += 1
-		for pos in sig_var_pos:
+		for k, pos in enumerate( sig_var_pos ):
 			if start < pos < end:
 				sig += 1
+				p += 1 / adj_p_values[ k ]
 		
 		y1.append( general )
 		y2.append( sig )
@@ -78,7 +86,10 @@ def generate_figure( fig_file, general_var_pos, sig_var_pos, seq_of_interest, wi
 			y3.append( sig / float( general ) )
 		else:
 			y3.append( 0 )
-		
+		if p > 0:
+			y4.append( math.log( p / float( general ) ) )
+		else:
+			y4.append( 0 )
 		x.append( (start+end) / 2000000.0 )
 		
 		start += step
@@ -95,24 +106,31 @@ def generate_figure( fig_file, general_var_pos, sig_var_pos, seq_of_interest, wi
 	ax3 = ax.twinx()
 	ax3.plot( x, y3, marker="o", linewidth=0, markersize=1, color="magenta" )
 	
-	ax.set_xlabel( "position on sequence [Mbp]" )
-	ax.set_title( seq_of_interest )
 	
-	ax.set_ylabel( "general variants" )
+	ax4 = ax.twinx()
+	if score_status:
+		ax4.plot( x, y4, marker="o", linewidth=0, markersize=1, color="black" )
+	
+	ax.set_xlabel( "position on sequence [Mbp]" )
+	#ax.set_title( seq_of_interest )
+	
+	ax.set_ylabel( "all variants" )
 	ax2.set_ylabel( "significant variants" )
 	
 	
 	ax.set_xlim( xstart/1000000.0, max_var_pos/1000000.0 )
-	ax.set_ylim( 0, max(  y1 ) )
-	ax2.set_ylim( 0, max( y2 ) )
-	ax3.set_ylim( 0, max( y3 ) )
+	ax.set_ylim( 0, max(  y1 )*1.01 )
+	ax2.set_ylim( 0, max( y2 )*1.01 )
+	ax3.set_ylim( 0, max( y3 )*1.01 )
+	ax4.set_ylim( 0, max( y4 )*1.01 )
 	
-	my_legend = [ 	mpatches.Patch(color='grey', label='general variants'),
+	my_legend = [ 	mpatches.Patch(color='grey', label='all variants'),
 								mpatches.Patch(color='blue', label='significant variants'),
-								mpatches.Patch(color='magenta', label='ratio') 
+								mpatches.Patch(color='magenta', label='normalized sig. variants'),
+								mpatches.Patch(color='black', label='region score')	#region score is sum of inverse adj. p-values
 							]
 	
-	ax.legend( handles=my_legend, loc='upper left' )
+	ax.legend( handles=my_legend, loc='upper center', ncol=2, bbox_to_anchor=(0.5, 1.15) )
 	
 	
 	ax.spines['top'].set_visible(False)
@@ -126,6 +144,12 @@ def generate_figure( fig_file, general_var_pos, sig_var_pos, seq_of_interest, wi
 	ax3.spines['right'].set_visible(False)
 	
 	ax3.get_yaxis().set_ticks([])
+	
+	ax4.spines['top'].set_visible(False)
+	ax4.spines['left'].set_visible(False)
+	ax4.spines['right'].set_visible(False)
+	
+	ax4.get_yaxis().set_ticks([])
 	
 	fig.savefig( fig_file )
 
@@ -157,10 +181,15 @@ def main( arguments ):
 		xend = int( arguments[ arguments.index( '--x2' )+1 ] )
 	else:
 		xend = False
+	
+	if '--score' in arguments:
+		score_status = True
+	else:
+		score_status = False
 
-	general_var_pos = load_var_pos( general_vcf, seq_of_interest )
-	sig_var_pos = load_var_pos( sig_var_vcf, seq_of_interest )
-	generate_figure( fig_file, general_var_pos, sig_var_pos, seq_of_interest, window, step, xstart, xend )
+	general_var_pos, waste = load_var_pos( general_vcf, seq_of_interest )
+	sig_var_pos, adj_p_values = load_var_pos( sig_var_vcf, seq_of_interest )
+	generate_figure( fig_file, general_var_pos, sig_var_pos, seq_of_interest, window, step, xstart, xend, adj_p_values, score_status )
 
 
 if '--all' in sys.argv and '--sig' in sys.argv and '--seq' in sys.argv and '--fig' in sys.argv:
