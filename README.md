@@ -151,7 +151,28 @@ optional:
 
 ### Script for seleciton of high impact variants 
 
-Reference: Nd-1 (Pucker, 2016).
+This script extract a customized selection of high impact variants from the SnpEff results file. Reference: Nd-1 (Pucker, 2016).
+
+```
+python SnpEff_result_parser.py
+--in <FULL_PATH_TO_INPUT_VCF>
+--out <FULL_PATH_TO_OUTPUT_TEXT_FILE>
+--gff <GFF_FILE_FOR_GENE_ID_MAPPING>
+
+optional:
+--anno <ANNOTATION_FILE>
+``` 
+
+
+`--in` species a VCF file which was annotated by SnpEff.
+
+`--out` species an output text file where the high impact variants will be summarized.
+
+`--gff` species a GFF file for the mapping of gene IDs.
+
+`--anno` species a text file containing functional annotations of the genes. The first column is expected to contain the gene IDs with functional annotations in the following columns.
+
+
 
 
 ### Script for selection of high impact variants
