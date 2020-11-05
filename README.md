@@ -149,9 +149,9 @@ optional:
 
 
 
-### Script for seleciton of high impact variants 
+### Script for extraction of high impact variants from SnpEff results
 
-This script extract a customized selection of high impact variants from the SnpEff results file. Reference: Nd-1 (Pucker, 2016).
+This script extracts a customized selection of high impact variants from the SnpEff results file. Reference: [10.1371/journal.pone.0164321](https://doi.org/10.1371/journal.pone.0164321).
 
 ```
 python SnpEff_result_parser.py
@@ -175,7 +175,7 @@ optional:
 
 
 
-### Script for selection of high impact variants
+### Script for selection of high impact variants in target region
 
 This script selects high impact variants predicted by SnpEff in a specific region. The input file should only contain variants of one pseudochromosome (sequence).
 
