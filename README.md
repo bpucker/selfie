@@ -86,6 +86,46 @@ fisher_exact_test_corrects_for_multiples_testing.py
 
 
 
+### Plotting significant variant frequencies
+
+This scripts generates a plot for a pseudochromosome or a specified target region. The number of all variants, the number of significant variants and the proportion of significant variants are displayed.
+
+```
+python sig_var_around_candidate_region.py
+--sig <VCF_WITH_SIGNIFICANT_VARIANTS>
+--all <VCF_FILE_WITH_ALL_VARIANTS>
+--seq <NAME_OF_SEQ_OF_INTEREST>
+--fig <FIGURE_FILENAME>
+
+optional:
+--window <SIZE_OF_SLIDING_WINDOW>
+--step <STEP_SIZE>
+--x1 <INTERVALL_STAR_POSITION>
+--x2 <INTERVALL_END_POSITION>
+--score <ACTIVATES_P_VALUE_BASED_SCORE>
+``` 
+
+`--sig` species a VCF input file which contains all variants with a significant difference in the distribution of reads in both pools.
+
+`--all` species a VCF input file with all variants.
+
+`--seq` species the name of a pseudochromosome or sequence. Only variants on this sequence will be plotted.
+
+`--fig` species the figure output file name. The file extension determines the file type. Frequently used options are PDF, PNG, JPG, and SVG.
+
+`--window` species the size of a sliding window which is used to summarize variant numbers. Each window should contain many variants to achieve a good representation. Setting the window size to extremely small values can result in artifacts.
+
+`--step` species the size of steps by which the sliding window is moved along a pseudochromosome/sequence.
+
+`--x1` species the start position of a region of interest.
+
+`--x2` species the end position of a region of interest.
+
+`--score` this flag activate the inclusion of a adj. p-value-based score. The log10() of the average adjusted p-value of all variants in a window is displayed. 
+
+
+
+
 ### Script for seleciton of high impact variants 
 
 Reference: Nd-1 (Pucker, 2016).
