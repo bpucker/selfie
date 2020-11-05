@@ -66,11 +66,45 @@ optional:
 
 
 
-
-
 ### Fisher's exact test
 
 fisher_exact_test_corrects_for_multiples_testing.py
+
+
+
+### Script for seleciton of high impact variants 
+
+Reference: Nd-1 (Pucker, 2016).
+
+
+### Script for selection of high impact variants
+
+This script selects high impact variants predicted by SnpEff in a specific region. The input file should only contain variants of one pseudochromosome (sequence).
+
+```
+python select_candidates.py
+--anno <FUNCTIONAL_ANNOTATION_FILE>
+--gff <GFF3_FILE>
+--in <HIGH_IMPACT_SNPEFF_FILE>
+--out <OUTPUT_FILE>
+--start <START_POSITION>
+--end <END_POSITION>
+``` 
+
+`--anno` species a text file with functional annotation of the genes in the GFF file.
+
+`--gff` species a GFF file which contains information about the positions and structures of annotated genes.
+
+`--in` species a text file which contains information about high impact variants.
+
+`--out` species a output file which contains information about high impact variants.
+
+`--start` species the start position of the interval of interest.
+
+`--end` species the end position of the interval of interest.
+
+
+
 
 
 ### References
