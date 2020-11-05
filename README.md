@@ -1,6 +1,29 @@
 # selfie
 all script associated with gf-selfie
 
+### VCF cleaning
+
+This script cleans a given VCF file by removal of low confidence variants. The following criteria are applied:
+
+1) Variants are kept if they carry the 'PASS' flag assigned by GATK.
+
+2) The maximal length of InDels and MNP is set to 1kb.
+
+3) The minimal number of reads at a variant position is 20 and the maximum number of reads is 500. This is a coverage cutoff.
+
+4) The variant is biallelic.
+
+
+```
+python vcf_cleaner.py
+--in <INPUT_VCF>
+--out <OUTPUT_VCF>
+```
+`--in` species the VCF input file.
+
+`--out` species the VCF output file.
+
+
 ### Selection of heterozygous variants
 
 This script extract heterozygous variants from a given VCF file. Variants are considered heterozygous if the alternative allele frequency is between 0.1 and 0.9. 
