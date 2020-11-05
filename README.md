@@ -1,7 +1,27 @@
 # selfie
 all script associated with gf-selfie
 
-### Delta allele frequency 
+### Filtering of VCF file based on a gold standard
+
+This scripts reduces the variants in a VCF file to those positions which are supported by a gold standard.
+
+```
+python filter_VCF_by_gold_standard.py
+--vcf <VCF (INPUT)>
+--gold <GOLD_VCF (INPUT)>
+--out <VCF (OUTPUT)>
+``` 
+
+`--vcf` species the VCF input file. All variants in this file are checked against the gold standard VCF file. Only variants at matching positions are written into the output file.
+
+`--gold` species the gold standard VCF file. All variants in the input file are checked against this. Only variants with support from this gold standard are written into the output file.
+
+`--out` species the VCF output file. All variants of the input file which are supported by the gold standard are written into the output file.
+
+
+
+
+### Delta allele frequency plots
 
 This script is used to visualize the distribution of delta allele frequencies across pseudochromosomes.
 
@@ -39,6 +59,12 @@ optional:
 `--minP2cov` species the minimal coverage (number of reads) of pool2.
 
 `--maxP2cov` species the maximal coverage (number of reads) of pool2.
+
+
+
+
+
+
 
 
 
