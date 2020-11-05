@@ -1,6 +1,20 @@
 # selfie
 all script associated with gf-selfie
 
+### Selection of heterozygous variants
+
+This script extract heterozygous variants from a given VCF file. Variants are considered heterozygous if the alternative allele frequency is between 0.1 and 0.9. 
+
+```
+python select_hetero_SNVs.py
+--in <VCF(INPUT)>
+--out <VCF(OUTPUT)>
+```
+`--in` species the VCF input file.
+
+`--out` species the VCF output file.
+
+
 ### Filtering of VCF file based on a gold standard
 
 This scripts reduces the variants in a VCF file to those positions which are supported by a gold standard.
