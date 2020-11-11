@@ -173,13 +173,17 @@ def map_gene_IDs( gff ):
 	with open( gff, "r" ) as f:
 		line = f.readline()
 		while line:
-			parts = line.strip().split('\t')
-			if parts[2] == "exon":
-				gene = re.findall( "g\d+", parts[-1] )[0]
-				start, end = map( int, parts[3:5] )
-				while start <= end:
-					gene_ID_mapping_table.update( { parts[0] + "_%_" + str( start ): gene } )
-					start += 1
+			if line[0] != '#':
+				parts = line.strip().split('\t')
+				if parts[2] == "gene":
+					ID = parts[-1].split('ID=')[1]
+					if ";" in ID:
+						ID = ID.split(';')[0]
+					#gene = re.findall( "g\d+", parts[-1] )[0]
+					start, end = map( int, parts[3:5] )
+					while start <= end:
+						gene_ID_mapping_table.update( { parts[0] + "_%_" + str( start ): ID } )
+						start += 1
 			line = f.readline()
 	return gene_ID_mapping_table
 
